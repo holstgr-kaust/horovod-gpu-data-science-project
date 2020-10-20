@@ -37,9 +37,9 @@ After installing the appropriate version of the NVIDIA CUDA Toolkit you will nee
 following environment variables.
 
 ```bash
-$ export CUDA_HOME=/usr/local/cuda-10.1
-$ export PATH=$CUDA_HOME/bin:$PATH
-$ export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+export CUDA_HOME=/usr/local/cuda-10.1
+export PATH=$CUDA_HOME/bin:$PATH
+export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 ```
 
 ### Ibex
@@ -49,7 +49,7 @@ made available on Ibex by the Ibex Systems team. Users simply need to load the a
 using the `module` tool. 
 
 ```bash
-$ module load cuda/10.1.243
+module load cuda/10.1.243
 ```
 
 ## Building the Conda environment
@@ -145,7 +145,7 @@ after the environment has already been created, then you can re-create the envir
 following command.
 
 ```bash
-$ conda env create --prefix $ENV_PREFIX --file environment.yml --force
+conda env create --prefix $ENV_PREFIX --file environment.yml --force
 ```
 
 ## Using Docker
