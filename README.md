@@ -33,6 +33,21 @@ of the NVIDIA CUDA Toolkit installed on your workstation. For this repo we are u
 [NVIDIA CUDA Toolkit 10.1](https://developer.nvidia.com/cuda-10.1-download-archive-update2) 
 [(documentation)](https://docs.nvidia.com/cuda/archive/10.1/).
 
+#### Remote Workstations
+
+The [Remote Workstations](https://myws.kaust.edu.sa) run Ubuntu 18.04 and have CUDA 10.1 as a `cuda/10.1.243/gcc-7.5.0-sxmpxrd` module. Users simply need to load the appropriate version
+using the `module` tool.
+
+```bash
+module load cuda/10.1.243/gcc-7.5.0-sxmpxrd
+```
+
+#### Local Workstation
+
+Your local KAUST Linux Workstation may already run Ubuntu 18.04 and have CUDA 10.1 as a module.  Use the same guidance as for the Remote Workstations above – and skip this step.
+
+However, if  your workstation doesn't have a CUDA 10.1 module, you will first need to install it yourself; or, ensure it is already installed.
+
 After installing the appropriate version of the NVIDIA CUDA Toolkit you will need to set the 
 following environment variables.
 
@@ -41,6 +56,9 @@ export CUDA_HOME=/usr/local/cuda-10.1
 export PATH=$CUDA_HOME/bin:$PATH
 export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 ```
+
+_NOTE:_ Ensure that `$CUDA_HOME` directory exists, and that CUBLAS header files are included at `$CUDA_HOME/include/cublas*.h`.
+
 
 ### Ibex
 
