@@ -10,10 +10,10 @@ dependencies:
   - cudatoolkit=10.1
   - cudnn=7.6
   - cupti=10.1
-  - cxx-compiler=1.0
-  - c-compiler=1.0
-  - gcc_linux-64=7.5
-  - gxx_linux-64=7.5
+  - cxx-compiler=1.0 # g++ missing from path with 1.1
+  - c-compiler=1.0 # gcc missing from path with 1.1
+  - gcc_linux-64=7.3 # Ibex (only) build fails with 7.5
+  - gxx_linux-64=7.3 # Ibex (only) build fails with 7.5
   - jupyterlab=2.2
   - mpi4py=3.0 # installs cuda-aware openmpi
   - nccl=2.5
@@ -22,9 +22,9 @@ dependencies:
   - pip=20.1
   - pip:
     - mxnet-cu101mkl==1.6.* # makes sure frameworks are installed prior to horovod
-    - tensorflow-gpu==2.1.*
     - -r file:requirements.txt
   - python=3.7
   - pytorch=1.5
-  - tensorboard=2.1
+  - tensorboard=2.2
+  - tensorflow-gpu=2.2
   - torchvision=0.6  
