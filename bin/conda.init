@@ -30,7 +30,7 @@ CONDA_EXE=${CONDA_EXE:-$(which conda 2> /dev/null)}
 if [ -n "${CONDA_EXE}" ] && [ "$(type -t ${CONDA_FN_NAME})" != "function" ] ; then 
   INIT_CONDA_ROOT_DIR="$(dirname "$(dirname "${CONDA_EXE}")")"
   INIT_CONDA_INIT_SCRIPT="${INIT_CONDA_ROOT_DIR}/etc/profile.d/conda.sh"
-  if [ -d "${INIT_CONDA_INIT_SCRIPT}" ] ; then
+  if [ -f "${INIT_CONDA_INIT_SCRIPT}" ] ; then
     source "${INIT_CONDA_INIT_SCRIPT}"
   fi
 fi
