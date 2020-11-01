@@ -1,10 +1,10 @@
 #!/bin/bash 
 #SBATCH --time=5:00
 #SBATCH --nodes=2
-#SBATCH --gres=gpu:p6000:2
-#SBATCH --ntasks-per-node=2
-#SBATCH --cpus-per-task=6
-#SBATCH --partition=debug
+#SBATCH --gres=gpu:v100:1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=4
+#SBATCH --partition=batch
 #SBATCH --output=results/log-%x-slurm-%j.out
 #SBATCH --error=results/log-%x-slurm-%j.err
 
