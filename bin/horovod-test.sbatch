@@ -23,6 +23,10 @@ set -eo pipefail
 # Need to define persistent storage for logging... 
 PERSISTENT_LOGGING_DIR="results/${SLURM_JOB_NAME}/logs"
 
+# N.B. mkdir does not overwrite if these directories already exist
+mkdir -p "${PERSISTENT_LOGGING_DIR}"
+
+
 # default values
 HOSTS_FILE="${PERSISTENT_LOGGING_DIR}/hosts-${SLURM_JOB_ID}.list"
 TESTING_SCRIPT=${TESTING_SCRIPT:-"src/test-examples/test-mpi-connection.py"}
