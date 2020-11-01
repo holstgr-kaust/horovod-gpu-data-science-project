@@ -100,10 +100,15 @@ celerybeat-schedule
 .env
 .venv
 env/
+env_*/
 venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Generated outputs
+
+results/
 
 # Spyder project settings
 .spyderproject

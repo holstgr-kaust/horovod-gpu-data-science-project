@@ -1,0 +1,49 @@
+#!/bin/bash -le
+
+# verify sourced
+
+if [[ "$0" == "$BASH_SOURCE" ]] ; then
+  echo "Do not exec conda.init : source conda.init" >&2
+  exit 1
+fi
+
+
+# configure
+
+CONDA_FN_NAME="conda"
+CONDA_EXE=${CONDA_EXE:-$(which conda 2> /dev/null)}
+
+# find conda, if not available
+if [ -z "${CONDA_EXE}" ] ; then
+  LOCAL_MODULES_DIR="${HOME}/.local/modules"
+  LOCAL_CONDA_MODULE="my.conda"
+  if [ -d "${LOCAL_MODULES_DIR}" ] ; then
+    module use "${LOCAL_MODULES_DIR}"
+    module load "${LOCAL_CONDA_MODULE}"
+  fi
+fi
+
+
+# initialize conda (if required)
+
+CONDA_EXE=${CONDA_EXE:-$(which conda 2> /dev/null)}
+if [ -n "${CONDA_EXE}" ] && [ "$(type -t ${CONDA_FN_NAME})" != "function" ] ; then 
+  INIT_CONDA_ROOT_DIR="$(dirname "$(dirname "${CONDA_EXE}")")"
+  INIT_CONDA_INIT_SCRIPT="${INIT_CONDA_ROOT_DIR}/etc/profile.d/conda.sh"
+  if [ -d "${INIT_CONDA_INIT_SCRIPT}" ] ; then
+    source "${INIT_CONDA_INIT_SCRIPT}"
+  fi
+fi
+
+
+# status / verification
+
+if [ -n "${CONDA_EXE}" ] && [ "$(type -t ${CONDA_FN_NAME})" = "function" ] ; then
+  echo "Initialized: $("${CONDA_EXE}" --version) at: ${CONDA_EXE}"
+else
+  echo "Warning: conda is not available or is missing functionality..."
+  echo "Warning:  it may not be installed or initialized correctly..."
+  echo "Warning:  which may cause environment operations to fail."
+  exit 1
+fi
+
