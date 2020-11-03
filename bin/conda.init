@@ -11,7 +11,7 @@ fi
 # configure
 
 CONDA_FN_NAME="conda"
-CONDA_EXE=${CONDA_EXE:-$(which conda 2> /dev/null)}
+CONDA_EXE=${CONDA_EXE:-$(which conda 2> /dev/null)} || true
 
 # find conda, if not available
 if [ -z "${CONDA_EXE}" ] ; then
@@ -26,7 +26,7 @@ fi
 
 # initialize conda (if required)
 
-CONDA_EXE=${CONDA_EXE:-$(which conda 2> /dev/null)}
+CONDA_EXE=${CONDA_EXE:-$(which conda 2> /dev/null)} || true
 if [ -n "${CONDA_EXE}" ] && [ "$(type -t ${CONDA_FN_NAME})" != "function" ] ; then 
   INIT_CONDA_ROOT_DIR="$(dirname "$(dirname "${CONDA_EXE}")")"
   INIT_CONDA_INIT_SCRIPT="${INIT_CONDA_ROOT_DIR}/etc/profile.d/conda.sh"
