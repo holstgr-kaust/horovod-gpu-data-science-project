@@ -41,15 +41,9 @@ mkdir -p "${LOCAL_TENSORBOARD_DIR}"
 
 # default values
 HOSTS_FILE="${PERSISTENT_LOGGING_DIR}/hosts-${SLURM_JOB_ID}.list"
-DATA_DIR=${DATA_DIR:-"/ibex/reference/CV/ILSVR/classification-localization/data/jpeg"}
-#DATA_DIR=${DATA_DIR:-"/local/reference/CV/ILSVR/classification-localization/data/jpeg"}
 TRAINING_SCRIPT=${TRAINING_SCRIPT:-"src/pytorch-examples/imagenet/train.py"}
 
 scontrol show hostname ${SLURM_JOB_NODELIST} | awk -v slots=${SLURM_NTASKS_PER_NODE} '{print $1 " slots="slots}' > "${HOSTS_FILE}"
-
-
-# TODO: require this as part of "$@" arguments
-BATCH_SIZE=${BATCH_SIZE:-160}  # per-gpu: depends upon GPU memory size
 
 
 # Load software stack
@@ -78,17 +72,17 @@ TENSORBOARD_PID=$!
 
 # start the training process in the background
 export OMPI_MCA_opal_cuda_support=true
+export NCCL_SOCKET_IFNAME=eth0 #ib0,eth0
 export NCCL_DEBUG=INFO
 #export NCCL_DEBUG_SUBSYS=COLL
 
-#horovodrun --num-proc ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" \
+#horovodrun --num-proc ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" --network-interface ${NCCL_SOCKET_IFNAME:-eth0} \
 mpirun --np ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" \
+        -bind-to none -map-by slot -mca pml ob1 -mca btl ^openib \
   "$(which python)" "${TRAINING_SCRIPT}" \
-    --data-dir "${DATA_DIR}" \
     --read-checkpoints-from "${PERSISTENT_CHECKPOINTS_DIR}" \
     --write-checkpoints-to "${LOCAL_CHECKPOINTS_DIR}" \
     --tensorboard-logging-dir "${LOCAL_TENSORBOARD_DIR}" \
-    --batch-size ${BATCH_SIZE} \
     "$@" &
 HOROVODRUN_PID=$!
 

@@ -52,6 +52,7 @@ conda activate ./env
 
 # start the training process in the background
 export OMPI_MCA_opal_cuda_support=true
+export NCCL_SOCKET_IFNAME=eth0 #ib0,eth0
 export NCCL_DEBUG=INFO
 export NCCL_DEBUG_SUBSYS=COLL
 
@@ -61,13 +62,9 @@ echo "PRE HOROVODRUN / MPIRUN"
 echo "python: $(which python)"
 echo "mpirun: $(which mpirun)"
 echo "horovodrun: $(which horovodrun)"
-#echo "running: horovodrun --num-proc ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" --verbose $(which python) ${TESTING_SCRIPT} $@"
-echo "running: mpirun --np ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" --verbose --show-progress \
-      $(which python) ${TESTING_SCRIPT} $@"
-#echo "running: mpirun --np ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" -mca btl tcp,self --verbose --show-progress \
-#      $(which python) ${TESTING_SCRIPT} $@"
-#echo "running: mpirun --np ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" -mca btl ^openib --verbose --show-progress \
-#      $(which python) ${TESTING_SCRIPT} $@"
+echo "running: horovodrun --num-proc ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" --network-interface ${NCCL_SOCKET_IFNAME:-eth0} --verbose"
+#echo "running: mpirun --np ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" --verbose --show-progress"
+echo "      $(which python) ${TESTING_SCRIPT} $@"
 echo "PERSISTENT_LOGGING_DIR: ${PERSISTENT_LOGGING_DIR}"
 echo "TESTING_SCRIPT: ${TESTING_SCRIPT}"
 echo "HOSTS_FILE: ${HOSTS_FILE}"
@@ -80,8 +77,18 @@ echo "OpenMPI Info:"
 ompi_info
 
 
-#horovodrun --num-proc ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" --verbose \
-mpirun --np ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" --verbose --show-progress \
+## horovod notes ##
+# --mpi-args "-mca btl_tcp_if_include eth0" # MCA parameters can only be listed once on a command line
+# --network-interface eth0
+## mpirun notes ##
+# -mca btl tcp,self
+# -mca btl ^openib
+
+#mpirun --np ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" --verbose --show-progress \
+#mpirun --np ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" \
+#        -bind-to none -map-by slot -mca pml ob1 -mca btl ^openib \
+#       --verbose --show-progress \
+horovodrun --num-proc ${SLURM_NTASKS} --hostfile "${HOSTS_FILE}" --network-interface ${NCCL_SOCKET_IFNAME:-eth0} --verbose \
   "$(which python)" "${TESTING_SCRIPT}" "$@"
 
 echo "POST HOROVODRUN / MPIRUN -- DONE!"

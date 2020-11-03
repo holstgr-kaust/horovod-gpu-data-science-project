@@ -169,7 +169,7 @@ def fit(model_fn, loss_fn, optimizer, lr_scheduler, training_data_loader, valida
         if rank == 0:
             _checkpoint = {"model_state_dict": model_fn.state_dict(),
                            "optimizer_state_dict": optimizer.state_dict()}
-            torch.save(_checkpoint, f"{checkpoints_logging_dir}/checkpoint-epoch-{epoch:02d}.pt")
+            torch.save(_checkpoint, checkpoints_logging_dir / f"checkpoint-epoch-{epoch:02d}.pt")
 
             summary_writer.add_scalar('train/loss', train_loss.avg, epoch)
             summary_writer.add_scalar('train/accuracy', train_accuracy.avg, epoch)
@@ -267,16 +267,14 @@ _initial_epoch = 0
 if hvd.rank() == 0:
     
     # Create the checkpoints and tensorboard logging directories (if necessary)
-    if not os.path.isdir(checkpoints_logging_dir):
-        os.mkdir(checkpoints_logging_dir)
-    if not os.path.isdir(tensorboard_logging_dir):
-        os.mkdir(tensorboard_logging_dir)
+    checkpoints_logging_dir.mkdir(parents=True, exist_ok=True)
+    tensorboard_logging_dir.mkdir(parents=True, exist_ok=True)
     
     # Look for a pre-existing checkpoint from which to resume training
     existing_checkpoints_dir = pathlib.Path(args.read_checkpoints_from)
     for _most_recent_epoch in range(args.epochs, 0, -1):
-        _checkpoint_filepath = f"{existing_checkpoints_dir}/checkpoint-epoch-{_most_recent_epoch:02d}.pt"
-        if os.path.exists(_checkpoint_filepath):
+        _checkpoint_filepath = existing_checkpoints_dir / f"checkpoint-epoch-{_most_recent_epoch:02d}.pt"
+        if _checkpoint_filepath.exists():
             _checkpoint = torch.load(_checkpoint_filepath)
             model_fn.load_state_dict(_checkpoint["model_state_dict"])
             distributed_optimizer.load_state_dict(_checkpoint["optimizer_state_dict"])
@@ -295,7 +293,4 @@ hvd.broadcast_optimizer_state(distributed_optimizer, root_rank=0)
 
 # run the training loop
 fit(model_fn, loss_fn, distributed_optimizer, one_cycle_lr, train_data_loader, val_data_loader, hvd.rank(), initial_epoch, args.epochs)
-
-
-
 
