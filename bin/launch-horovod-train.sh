@@ -3,6 +3,9 @@
 # Note: if any step fails, cancel everything
 set -e
 
+PROJECT_ROOT="$(dirname "$(dirname "$(realpath "$0")")")"
+
+
 function usage () {
   echo "launch-horovod-train.sh [-c] [-d <time>] [-g <gpus>] [-j <name>] [-k <gpu>] [-m <email>] [-n <nodes>] "
   echo "                        [-e <epochs>] [-l <lr>] [-t <epochs>]"
@@ -111,17 +114,21 @@ GPU_PER_NODE=$((GPU_TOTAL / NODE_TOTAL))
 
 JOB_NAME=${JOB_NAME:-"horovod-train"}-${PROJECT_VERSION}-${PARAMETER_SPACE}
 
+LOG_ROOT="${PROJECT_ROOT}/result/${JOB_NAME}"
+mkdir -p "${LOG_ROOT}"
+
 
 ## Note: TOTAL_JOBS = ceil(TOTAL_EPOCHS / EPOCHS_PER_JOB)
 TOTAL_JOBS=$(((TOTAL_EPOCHS + (EPOCHS_PER_JOB - 1)) / EPOCHS_PER_JOB))
 
 # launch
 for i in $(seq 1 ${TOTAL_JOBS}) ; do
-  echo sbatch --job-name="${JOB_NAME}" --dependency=singleton \
-              --time="${TIME_HOURS}:00:00" --gres=gpu:${GPU_TYPE}:${GPU_PER_NODE} \
-							--nodes=${NODE_TOTAL} --ntasks-per-node=${GPU_PER_NODE} \
-              --mem=$((GPU_PER_NODE * MEM_PER_GPU))G --cpus-per-task=${CPU_PER_GPU} \
-              ${SBATCH_CONSTRAINTS} \
+  sbatch --job-name="${JOB_NAME}" --dependency=singleton \
+         --time="${TIME_HOURS}:00:00" --gres=gpu:${GPU_TYPE}:${GPU_PER_NODE} \
+         --nodes=${NODE_TOTAL} --ntasks-per-node=${GPU_PER_NODE} \
+         --mem=$((GPU_PER_NODE * MEM_PER_GPU))G --cpus-per-task=${CPU_PER_GPU} \
+         --output="${LOG_ROOT}/joblogs-%j.out" --error="${LOG_ROOT}/joblogs-%j.err" \
+           ${SBATCH_CONSTRAINTS} \
     bin/horovod-train.sbatch ${PARAMETERS} \
                              --data-dir "${DATA_DIR}" \
                              "$@"
