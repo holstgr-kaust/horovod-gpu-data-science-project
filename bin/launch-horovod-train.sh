@@ -130,7 +130,7 @@ for i in $(seq 1 ${TOTAL_JOBS}) ; do
          --chdir="${PROJECT_ROOT}" \
          --output="${LOG_ROOT}/joblogs-%j.out" --error="${LOG_ROOT}/joblogs-%j.err" \
            ${SBATCH_CONSTRAINTS} \
-    bin/horovod-train.sbatch ${PARAMETERS} \
+    bin/horovod-train.sbatch ${TRAIN_PARAMETERS} \
                              --data-dir "${DATA_DIR}" \
                              "$@"
                              # TODO: --total-epochs ${TOTAL_EPOCHS}
