@@ -124,6 +124,7 @@ for i in $(seq 1 ${TOTAL_JOBS}) ; do
               ${SBATCH_CONSTRAINTS} \
     bin/horovod-train.sbatch ${PARAMETERS} \
                              --data-dir "${DATA_DIR}" \
+                             "$@"
                              # TODO: --total-epochs ${TOTAL_EPOCHS}
 done
 
