@@ -127,6 +127,7 @@ for i in $(seq 1 ${TOTAL_JOBS}) ; do
          --time="${TIME_HOURS}:00:00" --gres=gpu:${GPU_TYPE}:${GPU_PER_NODE} \
          --nodes=${NODE_TOTAL} --ntasks-per-node=${GPU_PER_NODE} \
          --mem=$((GPU_PER_NODE * MEM_PER_GPU))G --cpus-per-task=${CPU_PER_GPU} \
+         --chdir="${PROJECT_ROOT}" \
          --output="${LOG_ROOT}/joblogs-%j.out" --error="${LOG_ROOT}/joblogs-%j.err" \
            ${SBATCH_CONSTRAINTS} \
     bin/horovod-train.sbatch ${PARAMETERS} \
