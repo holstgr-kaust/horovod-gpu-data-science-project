@@ -10,7 +10,7 @@ function usage () {
   echo "launch-horovod-train.sh [-c] [-d <time>] [-g <gpus>] [-j <name>] [-k <gpu>] [-m <email>] [-n <nodes>] "
   echo "                        [-e <epochs>] [-l <lr>] [-t <epochs>]"
   echo "                        [--]"
-	echo " resources:"
+  echo " resources:"
   echo "  -c                  request reference data constraint"
   echo "  -d <time>           job duration in hours"
   echo "  -g <gpus_total>     total number of GPUs (tasks)"
@@ -38,35 +38,35 @@ while getopts ":cd:g:j:k:m:n:b:e:l:t:h" opt; do
       DATA_DIR=${DATA_DIR:-"/local/reference/CV/ILSVR/classification-localization/data/jpeg"}
       ;;
     d)
-			TIME_HOURS=${OPTARG}
+      TIME_HOURS=${OPTARG}
       ;;
-		g)
-			GPU_TOTAL=${OPTARG}
-			;;
-		j)
-			JOB_NAME=${OPTARG}
-			;;
+    g)
+      GPU_TOTAL=${OPTARG}
+      ;;
+    j)
+      JOB_NAME=${OPTARG}
+      ;;
     k)
-			GPU_TYPE=${OPTARG}
-			;;
+      GPU_TYPE=${OPTARG}
+      ;;
     m)
       SBATCH_CONSTRAINTS=${SBATCH_CONSTRAINTS} --mailtype=FAIL,TIMEOUT,TIMEOUT_90 --mailuser=${OPTARG}
       ;;
-		n)
-			NODE_TOTAL=${OPTARG}
-			;;
-		b)
-			BATCH_SIZE=${OPTARG}
-			;;
+    n)
+      NODE_TOTAL=${OPTARG}
+      ;;
+    b)
+      BATCH_SIZE=${OPTARG}
+      ;;
     e)
       EPOCHS_PER_JOB=${OPTARG}
-			;;
+      ;;
     l)
-			LEARNING_RATE=${OPTARG}
-			;;
+      LEARNING_RATE=${OPTARG}
+      ;;
     t)
-			TOTAL_EPOCHS=${OPTARG}
-			;;
+      TOTAL_EPOCHS=${OPTARG}
+      ;;
     h)
       usage
       exit 0
