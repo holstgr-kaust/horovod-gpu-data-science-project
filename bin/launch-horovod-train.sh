@@ -5,21 +5,23 @@ set -e
 
 function usage () {
   echo "launch-horovod-train.sh [-c] [-d <time>] [-g <gpus>] [-j <name>] [-k <gpu>] [-m <email>] [-n <nodes>] "
-  echo "                        [-e <epochs>] [-l <lr>] [-t <epochs>]  [-h]"
+  echo "                        [-e <epochs>] [-l <lr>] [-t <epochs>]"
+  echo "                        [--]"
 	echo " resources:"
   echo "  -c                  request reference data constraint"
-  echo "  -d <time> 					job duration in hours"
+  echo "  -d <time>           job duration in hours"
   echo "  -g <gpus_total>     total number of GPUs (tasks)"
   echo "  -j <job_name>       job name (basic unique non-parameterized descriptive)"
   echo "  -k <gpu_type>       type of GPU: v100, p100, gtx1080ti, rtx2080ti"
   echo "  -m <email>          request notification mails"
   echo "  -n <nodes>          number of nodes"
   echo " training:"
-  echo "  -b <batch_size> 		base per-gpu batch size"
+  echo "  -b <batch_size>     base per-gpu batch size"
   echo "  -e <epochs>         number of epochs to train during a single job"
   echo "  -l <learning_rate>  base learning rate"
   echo "  -t <total_epochs>   total epochs to train for"
   echo " miscellaneous:"
+  echo " --   remaining args are passed as parameters to the training script"
   echo "  -h  help"
 }
 
@@ -120,6 +122,8 @@ for i in $(seq 1 ${TOTAL_JOBS}) ; do
 							--nodes=${NODE_TOTAL} --ntasks-per-node=${GPU_PER_NODE} \
               --mem=$((GPU_PER_NODE * MEM_PER_GPU))G --cpus-per-task=${CPU_PER_GPU} \
               ${SBATCH_CONSTRAINTS} \
-    bin/horovod-train.sbatch ${PARAMETERS}
+    bin/horovod-train.sbatch ${PARAMETERS} \
+                             --data-dir "${DATA_DIR}" \
+                             # TODO: --total-epochs ${TOTAL_EPOCHS}
 done
 
