@@ -121,18 +121,34 @@ mkdir -p "${LOG_ROOT}"
 ## Note: TOTAL_JOBS = ceil(TOTAL_EPOCHS / EPOCHS_PER_JOB)
 TOTAL_JOBS=$(((TOTAL_EPOCHS + (EPOCHS_PER_JOB - 1)) / EPOCHS_PER_JOB))
 
+echo "Launching ${TOTAL_JOBS} jobs:"
+echo "  job-name: ${JOB_NAME}"
+echo "  time: ${TIME_HOURS}:00:00"
+echo "  gres: gpu:${GPU_TYPE}:${GPU_PER_NODE} "
+echo "  nodes: ${NODE_TOTAL} ntasks-per-node: ${GPU_PER_NODE} mem:$((GPU_PER_NODE * MEM_PER_GPU))G cpus-per-task:${CPU_PER_GPU}"
+echo "  working dir: ${PROJECT_ROOT}"
+echo "  logging dir: ${LOG_ROOT}"
+echo "  data dir: ${DATA_DIR}"
+echo "Parameters:"
+echo "  ${TRAIN_PARAMETERS} $@"
+
 # launch
+JOB_DEPENDENCY="--dependency=singleton" # none
 for i in $(seq 1 ${TOTAL_JOBS}) ; do
-  sbatch --job-name="${JOB_NAME}" --dependency=singleton \
-         --time="${TIME_HOURS}:00:00" --gres=gpu:${GPU_TYPE}:${GPU_PER_NODE} \
-         --nodes=${NODE_TOTAL} --ntasks-per-node=${GPU_PER_NODE} \
-         --mem=$((GPU_PER_NODE * MEM_PER_GPU))G --cpus-per-task=${CPU_PER_GPU} \
-         --chdir="${PROJECT_ROOT}" \
-         --output="${LOG_ROOT}/joblogs-%j.out" --error="${LOG_ROOT}/joblogs-%j.err" \
-           ${SBATCH_CONSTRAINTS} \
-    bin/horovod-train.sbatch ${TRAIN_PARAMETERS} \
-                             --data-dir "${DATA_DIR}" \
-                             "$@"
-                             # TODO: --total-epochs ${TOTAL_EPOCHS}
+  _jobid=$(sbatch --job-name="${JOB_NAME}" --parsable --kill-on-invalid-dep=yes ${JOB_DEPENDENCY} \
+                  --time="${TIME_HOURS}:00:00" \
+                  --gres=gpu:${GPU_TYPE}:${GPU_PER_NODE} \
+                  --nodes=${NODE_TOTAL} --ntasks-per-node=${GPU_PER_NODE} \
+                  --mem=$((GPU_PER_NODE * MEM_PER_GPU))G --cpus-per-task=${CPU_PER_GPU} \
+                  --chdir="${PROJECT_ROOT}" \
+                  --output="${LOG_ROOT}/joblogs-%j.out" --error="${LOG_ROOT}/joblogs-%j.err" \
+                    ${SBATCH_CONSTRAINTS} \
+             bin/horovod-train.sbatch ${TRAIN_PARAMETERS} \
+                                      --data-dir "${DATA_DIR}" \
+                                      "$@")
+                                      # TODO: --total-epochs ${TOTAL_EPOCHS})
+  echo "jobid: ${_jobid} ${JOB_DEPENDENCY}"
+  echo "  logfiles: $(realpath --relative-to="${PROJECT_ROOT}" "${LOG_ROOT}/joblogs-${_jobid}.*")"
+  JOB_DEPENDENCY="--dependency=afterok:${_jobid}"
 done
 
