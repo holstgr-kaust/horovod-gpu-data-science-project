@@ -130,7 +130,8 @@ echo "  working dir: ${PROJECT_ROOT}"
 echo "  logging dir: ${LOG_ROOT}"
 echo "  data dir: ${DATA_DIR}"
 echo "Parameters:"
-echo "  ${TRAIN_PARAMETERS} $@"
+echo "  ${TRAIN_PARAMETERS}"
+echo "  $@"
 
 # launch
 JOB_DEPENDENCY="--dependency=singleton" # none
