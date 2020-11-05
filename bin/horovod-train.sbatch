@@ -42,7 +42,7 @@ mkdir -p "${LOCAL_CHECKPOINTS_DIR}"
 mkdir -p "${LOCAL_TENSORBOARD_DIR}"
 
 # default values
-ENV_PREVIX="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_PREFIX:-env}")"
+ENV_PREFIX="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_PREFIX:-env}")"
 HOSTS_FILE="${PERSISTENT_LOGGING_DIR}/hosts-${SLURM_JOB_ID}.list"
 TRAINING_SCRIPT=$(realpath --relative-to="${PROJECT_ROOT}" "${TRAINING_SCRIPT:-"src/pytorch-examples/imagenet/train.py"}")
 

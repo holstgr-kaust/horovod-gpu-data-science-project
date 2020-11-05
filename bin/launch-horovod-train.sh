@@ -100,7 +100,7 @@ TIME_HOURS=${TIME_HOURS:-24}
 MEM_PER_GPU=45
 CPU_PER_GPU=4
 
-export ENV_PREVIX="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_PREFIX:-env}")"
+export ENV_PREFIX="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_PREFIX:-env}")"
 
 TOTAL_EPOCHS=${TOTAL_EPOCHS:-100}
 EPOCHS_PER_JOB=${EPOCHS_PER_JOB:-10}

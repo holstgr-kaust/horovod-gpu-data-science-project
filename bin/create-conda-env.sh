@@ -46,13 +46,19 @@ source "${PROJECT_ROOT}/bin/conda.init"
 
 
 # set relevant build variables for horovod
-export ENV_PREVIX="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_PREFIX:-env}")"
+export ENV_PREFIX="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_PREFIX:-env}")"
 export ENV_YAML="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_YAML:-environment.yml}")"
 
 export NCCL_HOME="${ENV_PREFIX}"
 export HOROVOD_CUDA_HOME="${CUDA_HOME:-${CUDA_ROOT}}"
 export HOROVOD_NCCL_HOME="${NCCL_HOME}"
 export HOROVOD_GPU_OPERATIONS=NCCL
+
+# TODO:
+##unset HOROVOD_GPU_OPERATIONS 
+#unset HOROVOD_GPU_ALLREDUCE 
+#unset HOROVOD_GPU_BROADCAST 
+
 
 # request builds for specific framework
 export HOROVOD_WITH_TENSORFLOW=1
