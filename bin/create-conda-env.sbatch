@@ -10,11 +10,9 @@
 #SBATCH --output=bin/%x-%j-slurm.out
 #SBATCH --error=bin/%x-%j-slurm.err
 
-# Load software stack
-module purge
-module load cuda/10.1.243
 
-source bin/conda.init
+# configure
+PROJECT_ROOT=$(realpath "${PROJECT_ROOT:-.}")
 
 # create the conda environment
-./bin/create-conda-env.sh
+"${PROJECT_ROOT}/bin/create-conda-env.sh"

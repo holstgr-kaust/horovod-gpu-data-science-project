@@ -24,7 +24,9 @@ set -eo pipefail
 
 
 # Need to define persistent storage for logging... 
-PERSISTENT_LOGGING_DIR="results/${SLURM_JOB_NAME}/logs"
+PROJECT_ROOT=$(realpath "${PROJECT_ROOT:-.}")
+
+PERSISTENT_LOGGING_DIR="${PROJECT_ROOT}/results/${SLURM_JOB_NAME}/logs"
 PERSISTENT_CHECKPOINTS_DIR="${PERSISTENT_LOGGING_DIR}/checkpoints"
 PERSISTENT_TENSORBOARD_DIR="${PERSISTENT_LOGGING_DIR}/tensorboard"
 
@@ -40,18 +42,18 @@ mkdir -p "${LOCAL_CHECKPOINTS_DIR}"
 mkdir -p "${LOCAL_TENSORBOARD_DIR}"
 
 # default values
+ENV_PREVIX="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_PREFIX:-env}")"
 HOSTS_FILE="${PERSISTENT_LOGGING_DIR}/hosts-${SLURM_JOB_ID}.list"
-TRAINING_SCRIPT=${TRAINING_SCRIPT:-"src/pytorch-examples/imagenet/train.py"}
+TRAINING_SCRIPT=$(realpath --relative-to="${PROJECT_ROOT}" "${TRAINING_SCRIPT:-"src/pytorch-examples/imagenet/train.py"}")
 
 scontrol show hostname ${SLURM_JOB_NODELIST} | awk -v slots=${SLURM_NTASKS_PER_NODE} '{print $1 " slots="slots}' > "${HOSTS_FILE}"
 
 
 # Load software stack
-module purge
-module load cuda/10.1.243
+source "${PROJECT_ROOT}/bin/module.init"
 
-source bin/conda.init
-conda activate ./env
+source "${PROJECT_ROOT}/bin/conda.init"
+conda activate "${ENV_PREFIX}"
 
 
 # Start the nvidia-smi process in the background

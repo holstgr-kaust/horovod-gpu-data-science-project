@@ -18,20 +18,21 @@ function usage () {
   echo "  -k <gpu_type>       type of GPU: v100, p100, gtx1080ti, rtx2080ti"
   echo "  -m <email>          request notification mails"
   echo "  -n <nodes>          number of nodes"
+  echo "  -v <env>            environment to activate (local directory name only)"
   echo " training:"
   echo "  -b <batch_size>     base per-gpu batch size"
   echo "  -e <epochs>         number of epochs to train during a single job"
   echo "  -l <learning_rate>  base learning rate"
   echo "  -t <total_epochs>   total epochs to train for"
   echo " miscellaneous:"
-  echo " --   remaining args are passed as parameters to the training script"
+  echo "  --  remaining args are passed as parameters to the training script"
   echo "  -h  help"
 }
 
 
 # Use getopts to get arguments
 #
-while getopts ":cd:g:j:k:m:n:b:e:l:t:h" opt; do
+while getopts ":cd:g:j:k:m:n:v:b:e:l:t:h" opt; do
   case $opt in
     c)
       SBATCH_CONSTRAINTS=${SBATCH_CONSTRAINTS} --constraint=[ref_32T]
@@ -54,6 +55,9 @@ while getopts ":cd:g:j:k:m:n:b:e:l:t:h" opt; do
       ;;
     n)
       NODE_TOTAL=${OPTARG}
+      ;;
+    v)
+      export ENV_PREFIX=${OPTARG}
       ;;
     b)
       BATCH_SIZE=${OPTARG}
@@ -96,6 +100,8 @@ TIME_HOURS=${TIME_HOURS:-24}
 MEM_PER_GPU=45
 CPU_PER_GPU=4
 
+export ENV_PREFIX="${ENV_PREFIX:-env}"
+
 TOTAL_EPOCHS=${TOTAL_EPOCHS:-100}
 EPOCHS_PER_JOB=${EPOCHS_PER_JOB:-10}
 
@@ -129,9 +135,29 @@ echo "  nodes: ${NODE_TOTAL} ntasks-per-node: ${GPU_PER_NODE} mem:$((GPU_PER_NOD
 echo "  working dir: ${PROJECT_ROOT}"
 echo "  logging dir: ${LOG_ROOT}"
 echo "  data dir: ${DATA_DIR}"
+echo "  environment: ${ENV_PREFIX}"
 echo "Parameters:"
 echo "  ${TRAIN_PARAMETERS}"
 echo "  $@"
+
+
+# validation / verification
+
+if [ ! -d "${PREFIX_ROOT}" ] ; then
+  echo "Warning: failed to find working directory: ${PREFIX_ROOT}"
+  exit 1
+fi
+
+if [ ! -d "${LOG_ROOT}" ] ; then
+  echo "Warning: failed to find logging directory: ${LOG_ROOT}"
+  exit 1
+fi
+
+if [ ! -d "${PREFIX_ROOT}/${ENV_PREFIX}" ] ; then
+  echo "Warning: failed to find environment: ${PREFIX_ROOT}/${ENV_PREFIX}"
+  exit 1
+fi
+
 
 # launch
 JOB_DEPENDENCY="--dependency=singleton" # none
@@ -144,9 +170,9 @@ for i in $(seq 1 ${TOTAL_JOBS}) ; do
                   --chdir="${PROJECT_ROOT}" \
                   --output="${LOG_ROOT}/joblogs-%j.out" --error="${LOG_ROOT}/joblogs-%j.err" \
                     ${SBATCH_CONSTRAINTS} \
-             bin/horovod-train.sbatch ${TRAIN_PARAMETERS} \
-                                      --data-dir "${DATA_DIR}" \
-                                      "$@")
+             "${PROJECT_ROOT}/bin/horovod-train.sbatch" ${TRAIN_PARAMETERS} \
+                                                        --data-dir "${DATA_DIR}" \
+                                                        "$@")
                                       # TODO: --total-epochs ${TOTAL_EPOCHS})
   echo "jobid: ${_jobid} ${JOB_DEPENDENCY}"
   echo "  logfiles: $(realpath --relative-to="${PROJECT_ROOT}" "${LOG_ROOT}/joblogs-${_jobid}.*")"

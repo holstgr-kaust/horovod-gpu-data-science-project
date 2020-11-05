@@ -1,0 +1,76 @@
+#!/bin/bash -le
+
+# verify sourced
+
+if [[ "$0" == "$BASH_SOURCE" ]] ; then
+  echo "Do not exec module.init : source module.init" >&2
+  exit 1
+fi
+
+# variables
+
+HOSTDOMAIN="$(hostname -d)"
+OSVERSION="$(lsb_release -si) $(lsb_release -sr | awk -F '.' '{ print $1 }')"
+
+
+# configure / initialization
+
+case "$HOSTDOMAIN" in
+*"ibex.kaust.edu.sa")
+  echo "Initialize modules: Ibex"
+  module purge
+  module load cuda/10.1.243
+
+  #module load openmpi/4.0.3-cuda10.1
+  ;;
+*"hpc.kaust.edu.sa")
+  echo "Unsupported system: Shaheen"
+  exit 1
+  ;;
+*"kaust.edu.sa")
+  echo "Unknown KAUST system - assuming KAUST workstation"
+
+  case "$OSVERSION" in
+  "Ubuntu 18")
+    module purge
+    module load cuda/10.1.243/gcc-7.5.0-sxmpxrd
+
+		#module load openmpi/3.1.5/gcc-7.5.0-x3fm2yb
+    ;;
+  *)
+    echo "Unknown KAUST system - assuming unsupported local workstation"
+    echo "  User must ensure required prerequisite dependencies are available - modify here..."
+
+    if [ -z "${CUDA_HOME}" ] && [ -d "/usr/local/cuda-10.1" ] ; then
+		  export CUDA_HOME=/usr/local/cuda-10.1
+		  export PATH=$CUDA_HOME/bin:$PATH
+		  export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+    fi
+
+    if [ ! -f "${CUDA_HOME}/include/cublas.h" ] || [ ! -f "${CUDA_HOME}/include/cublas_v2.h" ] ; then
+      echo "Warning: CUDA installation is missing cublas headers..."
+      exit 1
+    fi
+    ;;
+  esac
+  ;;
+*)
+  echo "Unknown system - assuming local workstation"
+  echo "  User must ensure required prerequisite dependencies are available - modify here..."
+  ;;
+esac
+
+
+# status / verification
+
+CUDA_NVCC=${CUDA_NVCC:-$(which nvcc 2> /dev/null)}
+
+if [ -n "${CUDA_HOME:-${CUDA_ROOT}}" ] && [ -x "$CUDA_NVCC" ] ; then
+  echo "Initialized CUDA: ${CUDA_HOME:-${CUDA_ROOT}}"
+else
+  echo "Warning: CUDA is not available or is missing functionality..."
+  echo "Warning:  it may not be installed or not installed completely..."
+  echo "Warning:  which could cause compute or compile operations to fail."
+  exit 1
+fi
+

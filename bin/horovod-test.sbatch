@@ -21,15 +21,18 @@ set -eo pipefail
 
 
 # Need to define persistent storage for logging... 
-PERSISTENT_LOGGING_DIR="results/${SLURM_JOB_NAME}/logs"
+PROJECT_ROOT=$(realpath "${PROJECT_ROOT:-.}")
+
+PERSISTENT_LOGGING_DIR="${PROJECT_ROOT}/results/${SLURM_JOB_NAME}/logs"
 
 # N.B. mkdir does not overwrite if these directories already exist
 mkdir -p "${PERSISTENT_LOGGING_DIR}"
 
 
 # default values
+ENV_PREVIX="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_PREFIX:-env}")"
 HOSTS_FILE="${PERSISTENT_LOGGING_DIR}/hosts-${SLURM_JOB_ID}.list"
-TESTING_SCRIPT=${TESTING_SCRIPT:-"src/test-examples/test-mpi-connection.py"}
+TESTING_SCRIPT=$(realpath --relative-to="${PROJECT_ROOT}" "${TESTING_SCRIPT:-"src/test-examples/test-mpi-connection.py"}")
 
 scontrol show hostname ${SLURM_JOB_NODELIST} | awk -v slots=${SLURM_NTASKS_PER_NODE} '{print $1 " slots="slots}' > "${HOSTS_FILE}"
 
@@ -43,11 +46,11 @@ env
 
 
 # Load software stack
-module purge
-module load cuda/10.1.243
+# Load software stack
+source "${PROJECT_ROOT}/bin/module.init"
 
-source bin/conda.init
-conda activate ./env
+source "${PROJECT_ROOT}/bin/conda.init"
+conda activate "${ENV_PREFIX}"
 
 
 # start the training process in the background
