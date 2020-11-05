@@ -13,7 +13,6 @@ source "${PROJECT_ROOT}/bin/conda.init"
 export ENV_PREVIX="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_PREFIX:-env}")"
 export ENV_YAML="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_YAML:-environment.yml}")"
 
-#export ENV_PREFIX="${PWD}/env"
 export NCCL_HOME="${ENV_PREFIX}"
 export HOROVOD_CUDA_HOME="${CUDA_HOME:-${CUDA_ROOT}}"
 export HOROVOD_NCCL_HOME="${NCCL_HOME}"
