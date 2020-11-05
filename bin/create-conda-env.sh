@@ -4,6 +4,42 @@ set -e
 
 PROJECT_ROOT="$(dirname "$(dirname "$(realpath "$0")")")"
 
+function usage () {
+  echo "create-conda-env.sh [-e <env>] [-y <yaml>] [-h]"
+  echo "  -e <env-prefix>        environment to create (local directory name)"
+  echo "  -y <environment-yaml>  environment specification file path"
+  echo "  -h  help"
+}
+
+# Use getopts to get arguments
+#
+while getopts ":e:y:h" opt; do
+  case $opt in
+    e)
+      ENV_PREFIX=${OPTARG}
+      ;;
+    y)
+      ENV_YAML=${OPTARG}
+      ;;
+    h)
+      usage
+      exit 0
+      ;;
+    [?])
+      echo "Invalid option: -${OPTARG}" >&2;
+      usage
+      exit 1
+      ;;
+    :)
+      echo "Option -${OPTARG} requires an argument." >&2;
+      usage
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+
+
 # Load software stack
 source "${PROJECT_ROOT}/bin/module.init"
 source "${PROJECT_ROOT}/bin/conda.init"
