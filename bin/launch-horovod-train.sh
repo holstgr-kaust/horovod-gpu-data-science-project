@@ -100,7 +100,7 @@ TIME_HOURS=${TIME_HOURS:-24}
 MEM_PER_GPU=45
 CPU_PER_GPU=4
 
-export ENV_PREFIX="${ENV_PREFIX:-env}"
+export ENV_PREVIX="${PROJECT_ROOT}/$(realpath --relative-to="${PROJECT_ROOT}" "${ENV_PREFIX:-env}")"
 
 TOTAL_EPOCHS=${TOTAL_EPOCHS:-100}
 EPOCHS_PER_JOB=${EPOCHS_PER_JOB:-10}
@@ -143,8 +143,8 @@ echo "  $@"
 
 # validation / verification
 
-if [ ! -d "${PREFIX_ROOT}" ] ; then
-  echo "Warning: failed to find working directory: ${PREFIX_ROOT}"
+if [ ! -d "${PROJECT_ROOT}" ] ; then
+  echo "Warning: failed to find working directory: ${PROJECT_ROOT}"
   exit 1
 fi
 
@@ -153,8 +153,8 @@ if [ ! -d "${LOG_ROOT}" ] ; then
   exit 1
 fi
 
-if [ ! -d "${PREFIX_ROOT}/${ENV_PREFIX}" ] ; then
-  echo "Warning: failed to find environment: ${PREFIX_ROOT}/${ENV_PREFIX}"
+if [ ! -d "${ENV_PREFIX}" ] ; then
+  echo "Warning: failed to find environment: ${ENV_PREFIX}"
   exit 1
 fi
 
