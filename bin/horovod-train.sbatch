@@ -110,5 +110,12 @@ done
 
 
 # kill off the monitoring processes
-kill ${NVIDIA_SMI_PID} ${NVDASHBOARD_PID} ${TENSORBOARD_PID}
+kill ${NVIDIA_SMI_PID} ${NVDASHBOARD_PID} ${TENSORBOARD_PID} || true
+
+# return exit status for training job
+# Note: This code is needed when `set -e` not used
+#       `set -e` above causes script to exit early if an error occured and return that exit code
+wait ${HOROVODRUN_PID}
+HOROVODRUN_STATUS=$?
+exit ${HOROVODRUN_STATUS}
 
