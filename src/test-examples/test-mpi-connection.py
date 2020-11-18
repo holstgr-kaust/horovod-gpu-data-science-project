@@ -19,5 +19,17 @@ print('args:', args)
 # initialize horovod
 hvd.init()
 
-print('hvd.inited - local rank:', hvd.local_rank(), ' global rank:', hvd.rank(), ' ranks:', hvd.size())
+print('hvd.inited - initialized:', hvd.is_initialized(), 
+      ' local rank:', hvd.local_rank(), ' global rank:', hvd.rank(), 
+      ' local ranks:', hvd.local_size(), ' global ranks:', hvd.size())
+print('hvd built - mpi_built:', hvd.mpi_built(), 
+      ' nccl_built:', hvd.nccl_built(), ' cuda_built:', cuda_built())
+print('hvd MPI - mpi_enabled:', hvd.mpi_enabled(), 
+      ' mpi_threads_supported:', hvd.mpi_threads_supported())
+
+# shudown horovod
+hvd.shutdown()
+
+print('hvd.shutdown')
+
 
